@@ -1,12 +1,19 @@
-from flask import Flask, render_template, request, jsonify, send_file, url_for
+
+import base64
+from flask import Flask, render_template, request, jsonify, url_for
 import random
 import os
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.application import MIMEApplication
-from email.mime.text import MIMEText
 import requests
-from io import BytesIO
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail, Attachment, FileContent, FileName, FileType, Disposition
+from dotenv import load_dotenv  # Import dotenv to load environment variables
+
+# Load environment variables from the .env file
+load_dotenv()
+
+# Now you can access environment variables
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+SENDER_EMAIL = os.getenv('SENDER_EMAIL')
 
 app = Flask(__name__)
 
@@ -17,38 +24,37 @@ RACING_IMAGES = [
     "static/images/racing3.jpg"
 ]
 
-# SMTP server settings (you can use Gmail or another SMTP service)
-SMTP_SERVER = 'sandbox.smtp.mailtrap.io'  # Change to your email provider's SMTP server
-SMTP_PORT = 2525  # Common port for Gmail
-SENDER_EMAIL = 'dharmabhai18@gmail.com'  # Your email address
-SENDER_PASSWORD = 'b8f49bba22a9b2'  # Your email password (use app password if needed)
-
-# Replace with your actual PDFShift API key
-PDFSHIFT_API_KEY = 'sk_4bb5a326455363c80d7f9d24a1ca24915d0358bf'
-
 def send_email(pdf, filename, recipient_email):
+    # Convert the PDF binary data to base64
+    pdf_base64 = base64.b64encode(pdf).decode('utf-8')  # Convert bytes to base64 string
+    
     # Create the email message
-    msg = MIMEMultipart()
-    msg['From'] = SENDER_EMAIL
-    msg['To'] = recipient_email
-    msg['Subject'] = 'Your Certificate of Completion'
+    message = Mail(
+        from_email=SENDER_EMAIL,
+        to_emails=recipient_email,
+        subject='Your Certificate of Participation from 5km Running Competiotion',
+        html_content='<strong>Please find attached 5km Running Competion Certificate of Participation.</strong>'
+    )
 
-    # Add the body of the email
-    body = MIMEText("Please find attached your Certificate of Completion.", 'plain')
-    msg.attach(body)
+    # Create the attachment with base64-encoded PDF data
+    attachment = Attachment(
+        FileContent(pdf_base64),  # Base64-encoded file content
+        FileName(filename),  # File name
+        FileType('application/pdf'),  # MIME type
+        Disposition('attachment')  # The disposition type (attachment)
+    )
 
-    # Attach the PDF certificate
-    attachment = MIMEApplication(pdf, _subtype='pdf')
-    attachment.add_header('Content-Disposition', 'attachment', filename=filename)
-    msg.attach(attachment)
+    # Add the attachment to the email
+    message.add_attachment(attachment)
 
-    # Connect to the SMTP server and send the email
+    # Send the email using SendGrid API
     try:
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()  # Secure the connection
-            server.login(SENDER_EMAIL, SENDER_PASSWORD)  # Log in to the email account
-            server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())  # Send the email
+        sg = SendGridAPIClient(SENDGRID_API_KEY)
+        response = sg.send(message)
         print(f"Email sent successfully to {recipient_email}!")
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
     except Exception as e:
         print(f"Error sending email: {e}")
 
@@ -56,7 +62,7 @@ def convert_html_to_pdf_via_pdfshift(html_content):
     try:
         response = requests.post(
             'https://api.pdfshift.io/v3/convert/pdf',
-            auth=('api', PDFSHIFT_API_KEY),
+            auth=('api', os.getenv('PDFSHIFT_API_KEY')),  # Using API key from .env file
             json={
                 "source": html_content,  # HTML content directly
                 "landscape": False,
@@ -104,7 +110,7 @@ def generate_certificate():
             f.write(pdf_content)
         print(f"Certificate saved to {pdf_path}")
 
-        # Optionally send the email with the PDF attached
+        # Send the email with the PDF attached
         send_email(pdf_content, pdf_filename, recipient_email)
 
         # Redirect to the download page with the certificate path
@@ -112,8 +118,6 @@ def generate_certificate():
     else:
         return jsonify({"error": "Failed to generate PDF"}), 500
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Use the port from environment variables or default to 5000
     app.run(host="0.0.0.0", port=port, debug=True)
