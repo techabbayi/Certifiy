@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Distribution</title>
+    <link rel="stylesheet" href="../static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Enter your Details to get Certificate</h1>
+        <div id="qrcode"></div>
+
+        <form action="/generate_certificate" method="POST">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        
+            <label for="course">Course:</label>
+            <input type="text" id="course" name="course" required>
+        
+            <label for="recipient_email">Recipient Email:</label>
+            <input type="email" id="recipient_email" name="recipient_email" required>
+        
+            <button type="submit">Download</button>
+        </form>
+        
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js"></script>
+    <script>
+        // Generate the QR code pointing to the form page
+        const qrCodeData = "{{ url_for('index') }}";
+        QRCode.toCanvas(document.getElementById("qrcode"), qrCodeData, function(error) {
+            if (error) console.error(error);
+            console.log('QR code generated!');
+        });
+    </script>
+</body>
+</html>

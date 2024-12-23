@@ -1,0 +1,49 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Certificate</title>
+    <link rel="stylesheet" href="../static/certificate.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Certificate Generated Successfully!</h1>
+        <p>Congratulations, your certificate has been successfully generated.</p>
+        
+        <!-- Display certificate preview -->
+        <!-- <p>Click the button below to download your certificate.</p>
+        
+        <a href="../templates/certificate_template.html" download>
+            <button>Download Certificate</button>
+        </a>
+
+        <p><strong>Note:</strong> The certificate is available in PDF format.</p>
+    </div>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Certificate</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='certificate.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Certificate Generated Successfully!</h1>
+        <p>Congratulations, your certificate has been successfully generated.</p>
+        
+        <!-- Display certificate download button -->
+        <p>Click the button below to download your certificate.</p>
+        
+        <a href="{{ certificate_url }}" download>
+            <button>Download Certificate</button>
+        </a>
+
+        <p><strong>Note:</strong> The certificate is available in PDF format.</p>
+    </div>
+</body>
+</html>

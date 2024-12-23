@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            border: 10px solid #333;
+            margin: 50px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: red;
+            font-size: 36px;
+        }
+        .certificate-content {
+            margin-top: 50px;
+        }
+        .racing-image {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Certificate of Completion</h1>
+    <div class="certificate-content">
+        <p>This is to certify that</p>
+        <h2>{{ name }}</h2>
+        <p>has successfully completed the</p>
+        <h3>{{ course }}</h3>
+        <p>course on</p>
+    </div>
+    <div class="racing-image">
+        <img src="{{ racing_image }}" alt="Racing Image" style="width:300px;">
+    </div>
+</body>
+</html>
