@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, make_response, url_for
-import pdfkit
 import random
 import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
+from weasyprint import HTML  # Import WeasyPrint
 
 app = Flask(__name__)
 
@@ -15,10 +15,6 @@ RACING_IMAGES = [
     "static/images/racing2.jpg",
     "static/images/racing3.jpg"
 ]
-
-# Path to wkhtmltopdf executable (adjusted for Render Hosting environment)
-# On Render, wkhtmltopdf is likely installed in /usr/local/bin/wkhtmltopdf
-WKHTMLTOPDF_PATH = '/usr/local/bin/wkhtmltopdf'  # Adjust this path for Render
 
 # SMTP server settings (you can use Gmail or another SMTP service)
 SMTP_SERVER = 'sandbox.smtp.mailtrap.io'  # Change to your email provider's SMTP server
@@ -58,7 +54,6 @@ def send_email(pdf, filename, recipient_email):
     except Exception as e:
         print(f"Error sending email: {e}")
 
-
 @app.route('/generate_certificate', methods=['POST'])
 def generate_certificate():
     name = request.form['name']
@@ -76,16 +71,8 @@ def generate_certificate():
         racing_image=url_for('static', filename=racing_image)
     )
 
-    # Configure pdfkit with the path to wkhtmltopdf
-    config = pdfkit.configuration(wkhtmltopdf=WKHTMLTOPDF_PATH)
-
-    # Add options to allow local file access
-    options = {
-        'enable-local-file-access': None
-    }
-
-    # Generate PDF from HTML
-    pdf = pdfkit.from_string(rendered_html, False, configuration=config, options=options)
+    # Generate PDF from HTML using WeasyPrint
+    pdf = HTML(string=rendered_html).write_pdf()
 
     # Generate the PDF filename and path
     pdf_filename = f"{name}_certificate.pdf"
@@ -100,7 +87,6 @@ def generate_certificate():
 
     # Redirect to the download page with the certificate path
     return render_template('certificate.html', certificate_url=url_for('static', filename=f'certificates/{pdf_filename}'))
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Default to 5000 if PORT is not set
