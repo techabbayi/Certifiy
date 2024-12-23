@@ -1,0 +1,4 @@
+Flask>=2.3.0
+pdfkit>=1.0.0
+random2>=1.0.1  # Optional, for compatibility with Python's `random` if needed
+smtplib3>=0.1.0  # Optional, included for clarity but part of the Python standard library
