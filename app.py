@@ -293,7 +293,7 @@ RACING_IMAGES = [
 ]
 
 # Path to wkhtmltopdf executable (update this if wkhtmltopdf is not in PATH)
-WKHTMLTOPDF_PATH = r'C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe'
+WKHTMLTOPDF_PATH = r'bin\wkhtmltopdf.exe'
 
 # SMTP server settings (you can use Gmail or another SMTP service)
 SMTP_SERVER = 'sandbox.smtp.mailtrap.io'  # Change to your email provider's SMTP server
